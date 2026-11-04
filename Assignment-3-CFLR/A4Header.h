@@ -7,6 +7,16 @@
 #define ANSWERS_A4HEADER_H
 
 #include <utility>
+#include <cassert>
+#include <cstdint>
+#include <deque>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "SVF-LLVM/SVFIRBuilder.h"
 
@@ -71,6 +81,7 @@ class CFLRGraph
 public:
     /// We use a source -> label -> target map to represent the adjacency list of the predecessors/successors of nodes.
     using DataMap = std::unordered_map<unsigned, std::unordered_map<EdgeLabel, std::unordered_set<unsigned>>>;
+    CFLRGraph() = default;
 
     /// Construct a graph from a PAG
     explicit CFLRGraph(SVF::SVFIR *pag);
@@ -92,6 +103,9 @@ public:
      */
     void addEdge(unsigned src, unsigned dst, EdgeLabel label);
 
+    void addNode(unsigned node) { nodes.insert(node); }
+    const std::set<unsigned> &getNodes() const { return nodes; }
+
     DataMap &getSuccessorMap()
     { return succMap; }
 
@@ -99,6 +113,7 @@ public:
     { return predMap; }
 
 protected:
+    std::set<unsigned> nodes;
     DataMap predMap;   // holding predecessors
     DataMap succMap;   // holding successors
 };

@@ -7,6 +7,9 @@
 
 CFLRGraph::CFLRGraph(SVF::SVFIR *pag)
 {
+    // Epsilon productions apply even to nodes without supported PAG edges.
+    for (const auto &entry : *pag)
+        addNode(entry.first);
     for (SVF::PAGEdge *edge : pag->getSVFStmtSet(SVF::PAGEdge::Addr))
     {
         addEdge(edge->getSrcID(), edge->getDstID(), Addr);
@@ -14,6 +17,14 @@ CFLRGraph::CFLRGraph(SVF::SVFIR *pag)
     }
 
     for (SVF::PAGEdge *edge : pag->getSVFStmtSet(SVF::PAGEdge::Copy))
+    {
+        addEdge(edge->getSrcID(), edge->getDstID(), Copy);
+        addEdge(edge->getDstID(), edge->getSrcID(), CopyBar);
+    }
+
+    // The lecture grammar has no field/offset labels. Conservatively collapse
+    // GEPs to copies instead of silently disconnecting structure-field pointers.
+    for (SVF::PAGEdge *edge : pag->getSVFStmtSet(SVF::PAGEdge::Gep))
     {
         addEdge(edge->getSrcID(), edge->getDstID(), Copy);
         addEdge(edge->getDstID(), edge->getSrcID(), CopyBar);
@@ -79,12 +90,18 @@ CFLRGraph::CFLRGraph(SVF::SVFIR *pag)
 
 bool CFLRGraph::hasEdge(unsigned int src, unsigned int dst, EdgeLabel EdgeLabel)
 {
-    return succMap[src][EdgeLabel].count(dst);
+    const auto srcIt = succMap.find(src);
+    if (srcIt == succMap.end())
+        return false;
+    const auto labelIt = srcIt->second.find(EdgeLabel);
+    return labelIt != srcIt->second.end() && labelIt->second.count(dst) != 0;
 }
 
 
 void CFLRGraph::addEdge(unsigned int src, unsigned int dst, EdgeLabel EdgeLabel)
 {
+    addNode(src);
+    addNode(dst);
     succMap[src][EdgeLabel].insert(dst);
     predMap[dst][EdgeLabel].insert(src);
 }

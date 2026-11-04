@@ -1,13 +1,9 @@
-## Assignments for Introduction to Static Program Analysis.
+# Assignment 3
 
-- After completing the code assignemts in the corresponding subdirectories, you can go to the root direction, i.e., `Assignments/`, and type:
+- 姓名：马蕴哲
+- 学号：3220262773
 
-	- `./build.sh`: to compile and build the code in all subdirectories; or
-	- `./build.sh [list_of_directories]`: to compile and build the code in the subdirectories you specified.
-
-- After running `./build.sh`, an executable is expected to be in each corresponding subdirectory.
-
-- Then, you can use the test cases in `Assignment.../Test-Cases` to check whether you code is correct.
-
-#### Note:
-Every time you upload your assignments, please attach your **NAME** and **STUDENT ID** to this README file!
+```bash
+source ./build.sh Assignment-3-CFLR
+cd ..
+```
